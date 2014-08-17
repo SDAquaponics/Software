@@ -56,14 +56,14 @@ class Echo(protocol.Protocol):
 		jitter1 = random.randrange(-400, 400)
 		jitter2 = random.randrange(-400, 400)
 
-		cell_list[0].value = time.strftime("%I:%M%p")
+		cell_list[0].value = time.strftime("%m-%d-%Y %H:%M:%S")
 		cell_list[1].value = level
 		cell_list[2].value = temp
 		cell_list[3].value = "%s" % (Decimal(level) + (jitter1/100))
 		cell_list[4].value = "%s" % (Decimal(temp) + (jitter2/100))
 
 		#print ("Updating spreadsheet...")
-		print ("Jitter1 = %f, Jitter2 = %f" % (jitter1, jitter2))
+		print ("data=%s, Jitter1 = %f, Jitter2 = %f" % (cell_list[0].value , jitter1, jitter2))
 		wks.update_cells(cell_list)
 
 	def parseData(self, data):

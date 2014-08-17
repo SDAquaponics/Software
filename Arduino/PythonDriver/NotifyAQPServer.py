@@ -4,7 +4,7 @@
 import serial, sys, sendmail, decimal
 import socket
 
-HOST = "192.168.1.2"
+HOST = "raspberrypi"
 PORT = 1981
 
 DEBUG = False;

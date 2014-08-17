@@ -56,7 +56,7 @@ class Echo(protocol.Protocol):
 		jitter1 = random.randrange(-400, 400)
 		jitter2 = random.randrange(-400, 400)
 
-		cell_list[0].value = time.strftime("%I:%M:%S%p")
+		cell_list[0].value = time.strftime("%I:%M%p")
 		cell_list[1].value = level
 		cell_list[2].value = temp
 		cell_list[3].value = "%s" % (Decimal(level) + (jitter1/100))

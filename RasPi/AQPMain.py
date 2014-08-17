@@ -19,5 +19,5 @@ def main_program():
 
 
 if __name__ == '__main__':
-    #with daemon.DaemonContext():
-    main_program()
+    with daemon.DaemonContext():
+    	main_program()

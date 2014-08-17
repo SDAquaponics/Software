@@ -4,7 +4,11 @@ SENSOR_TYPE_DISTANCE = 0x00
 SENSOR_TYPE_TEMP = 0x01
 SENSOR_TYPE_HUMIDITY = 0x02
 
-import decimal
+from decimal import Decimal
+import time
+import gspread
+import random
+
 from twisted.internet import protocol, reactor
 
 class Echo(protocol.Protocol):
@@ -36,6 +40,32 @@ class Echo(protocol.Protocol):
 		return sensor_dict
 
 
+	def update_google_spreadsheet(self, level, temp):
+		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
+		sp = gc.open("AQPonicsDataLog")
+		wks = sp.worksheet("Sheet1")
+
+
+		all = wks.get_all_values()
+		end_row = len(all) + 1
+		beg = 'A%d' % end_row
+		end = 'E%d' % end_row
+		cell_list = wks.range('%s:%s' % (beg, end))
+
+		# Add jitter so that the graph comes out nicely
+		jitter1 = random.randrange(-400, 400)
+		jitter2 = random.randrange(-400, 400)
+
+		cell_list[0].value = time.strftime("%I:%M:%S%p")
+		cell_list[1].value = level
+		cell_list[2].value = temp
+		cell_list[3].value = "%s" % (Decimal(level) + (jitter1/100))
+		cell_list[4].value = "%s" % (Decimal(temp) + (jitter2/100))
+
+		#print ("Updating spreadsheet...")
+		print ("Jitter1 = %f, Jitter2 = %f" % (jitter1, jitter2))
+		wks.update_cells(cell_list)
+
 	def parseData(self, data):
 		magic1, magic2 = ord(data[0]), ord(data[1])
 		msg_type = ord(data[2])
@@ -49,6 +79,9 @@ class Echo(protocol.Protocol):
 		dist = (all_results['Distance'])
 		temp = (all_results['Temperature'])
 		print("Sensed Distance = %s, Temp = %s" % (dist, temp))
+
+		# Now update Google Spreadsheet
+		self.update_google_spreadsheet(dist, temp)
 		return "OK!"
 
 	def dataReceived(self, data):

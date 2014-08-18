@@ -16,7 +16,7 @@ class Echo(protocol.Protocol):
 		sensor_dict = {}
 		if (ord(payload[0]) == 0x01):
 			num_sensors = ord(payload[1])
-			print ("Number of sensors: %d" % num_sensors)
+			#print ("Number of sensors: %d" % num_sensors)
 			start_idx = 2
 			for idx in range(0, num_sensors):
 				sensor_data = payload[start_idx: start_idx + 4]
@@ -31,11 +31,11 @@ class Echo(protocol.Protocol):
 				elif (sensor_type == SENSOR_TYPE_HUMIDITY):
 					sensor_dict['Humidity'] = value
 				else:
-					print("Wrong sensor type detected")
+					#print("Wrong sensor type detected")
 				start_idx = start_idx + 4  # On to the next sensor value
 
 		else:
-			print("Invalid payload type")
+			#print("Invalid payload type")
 
 		return sensor_dict
 
@@ -65,7 +65,7 @@ class Echo(protocol.Protocol):
 		cell_list[4].value = "%s" % (Decimal(temp) + (jitter2/100))
 
 		#print ("Updating spreadsheet...")
-		print ("data=%s, Jitter1 = %f, Jitter2 = %f" % (cell_list[0].value , jitter1, jitter2))
+		#print ("data=%s, Jitter1 = %f, Jitter2 = %f" % (cell_list[0].value , jitter1, jitter2))
 		wks.update_cells(cell_list)
 
 		#Update the current value
@@ -80,14 +80,14 @@ class Echo(protocol.Protocol):
 		msg_type = ord(data[2])
 		msg_len = ord(data[3])
 		payload = data[4 : 4 + msg_len]
-		print("magic1 = %d, magic2 = %d, type = %d, len = %d\n" % (magic1, magic2, msg_type, msg_len))
+		#print("magic1 = %d, magic2 = %d, type = %d, len = %d\n" % (magic1, magic2, msg_type, msg_len))
 		#for byte in payload:
 		#	print ("Byte = 0x%X" % ord(byte))
 
 		all_results = self.parse_payload(payload)
 		dist = (all_results['Distance'])
 		temp = (all_results['Temperature'])
-		print("Sensed Distance = %s, Temp = %s" % (dist, temp))
+		#print("Sensed Distance = %s, Temp = %s" % (dist, temp))
 
 		# Now update Google Spreadsheet
 		self.update_google_spreadsheet(dist, temp)

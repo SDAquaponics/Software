@@ -55,8 +55,10 @@ class Echo(protocol.Protocol):
 		# Add jitter so that the graph comes out nicely
 		jitter1 = random.randrange(-400, 400)
 		jitter2 = random.randrange(-400, 400)
+		timestamp = time.strftime("%m-%d-%Y %H:%M:%S")
 
-		cell_list[0].value = time.strftime("%m-%d-%Y %H:%M:%S")
+		# Update the running list of readings
+		cell_list[0].value = timestamp
 		cell_list[1].value = level
 		cell_list[2].value = temp
 		cell_list[3].value = "%s" % (Decimal(level) + (jitter1/100))
@@ -65,6 +67,13 @@ class Echo(protocol.Protocol):
 		#print ("Updating spreadsheet...")
 		print ("data=%s, Jitter1 = %f, Jitter2 = %f" % (cell_list[0].value , jitter1, jitter2))
 		wks.update_cells(cell_list)
+
+		#Update the current value
+		curr_cells = wks.range('A3:C3')
+		curr_cells[0].value = timestamp
+		curr_cells[1].value = level
+		curr_cells[2].value = temp
+		wks.update_cells(curr_cells)
 
 	def parseData(self, data):
 		magic1, magic2 = ord(data[0]), ord(data[1])

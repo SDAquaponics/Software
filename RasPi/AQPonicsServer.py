@@ -39,6 +39,17 @@ class Echo(protocol.Protocol):
 
 		return sensor_dict
 
+	def update_webpage(self, ts, level, temp):
+		file = open("/home/pi/Software/RasPi/webdata/index.html", 'w')
+		filedata = '''
+		<html>
+		Timestamp = %s<BR>
+		Level = %s<BR>
+		Temperature = %s<BR>
+		</html>
+		''' % (ts, level, temp)
+		file.write(filedata)
+		file.close()
 
 	def update_google_spreadsheet(self, level, temp):
 		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
@@ -74,6 +85,10 @@ class Echo(protocol.Protocol):
 		curr_cells[1].value = level
 		curr_cells[2].value = temp
 		wks.update_cells(curr_cells)
+
+		#Update the webpage
+		self.update_webpage(timestamp, level, temp)
+
 
 	def parseData(self, data):
 		magic1, magic2 = ord(data[0]), ord(data[1])

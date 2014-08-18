@@ -31,11 +31,11 @@ class Echo(protocol.Protocol):
 				elif (sensor_type == SENSOR_TYPE_HUMIDITY):
 					sensor_dict['Humidity'] = value
 				else:
-					#print("Wrong sensor type detected")
+					print("Wrong sensor type detected")
 				start_idx = start_idx + 4  # On to the next sensor value
 
 		else:
-			#print("Invalid payload type")
+			print("Invalid payload type")
 
 		return sensor_dict
 

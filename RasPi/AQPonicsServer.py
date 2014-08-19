@@ -9,7 +9,11 @@ import time
 import gspread
 import random
 
+
 from twisted.internet import protocol, reactor
+
+haveEndRow = False
+endRow = 0
 
 class Echo(protocol.Protocol):
 	def parse_payload(self, payload):
@@ -55,13 +59,22 @@ class Echo(protocol.Protocol):
 		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
 		sp = gc.open("AQPonicsDataLog")
 		wks = sp.worksheet("Sheet1")
+		global haveEndRow, endRow
 
 
-		all = wks.get_all_values()
-		end_row = len(all) + 1
-		beg = 'A%d' % end_row
-		end = 'E%d' % end_row
+		if haveEndRow == False:
+			#print ("Getting row end\n")
+			haveEndRow = True
+			all = wks.get_all_values()
+			endRow = len(all) + 1
+		#else:
+		#	print("Already have row end...\n")
+
+		beg = 'A%d' % endRow
+		end = 'E%d' % endRow
 		cell_list = wks.range('%s:%s' % (beg, end))
+		endRow = endRow + 1  #For next time
+
 
 		# Add jitter so that the graph comes out nicely
 		jitter1 = random.randrange(-400, 400)

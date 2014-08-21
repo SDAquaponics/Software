@@ -58,7 +58,7 @@ class Echo(protocol.Protocol):
 	def update_google_spreadsheet(self, level, temp):
 		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
 		sp = gc.open("AQPonicsDataLog")
-		wks = sp.worksheet("Sheet1")
+		wks = sp.worksheet("Data")
 		global haveEndRow, endRow
 
 

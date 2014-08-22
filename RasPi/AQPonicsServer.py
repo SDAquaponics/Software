@@ -8,7 +8,9 @@ from decimal import Decimal
 import time
 import gspread
 import random
-
+import plotly.plotly as py # plotly library
+import json
+import datetime
 
 from twisted.internet import protocol, reactor
 
@@ -54,6 +56,28 @@ class Echo(protocol.Protocol):
 		''' % (ts, level, temp)
 		file.write(filedata)
 		file.close()
+
+
+	def update_plotly(self, level, temp):
+		with open('./config.json') as config_file:
+			plotly_user_config = json.load(config_file)
+			py.sign_in(plotly_user_config["plotly_username"], plotly_user_config["plotly_api_key"])
+		
+		url = py.plot([
+    			{
+		        'x': [], 'y': [], 'type': 'bar',
+		        'stream': {
+				'token': plotly_user_config['plotly_streaming_tokens'][0],
+				'maxpoints': 200
+        		}
+ 		}], filename='Raspberry Pi Streaming water level and temperature')
+		#print "View your streaming graph here: ", url
+		
+		#Update the stream now
+		stream = py.Stream(plotly_user_config['plotly_streaming_tokens'][0])
+		stream.open()
+		print("level = %s" % level)
+		stream.write({'x': datetime.datetime.now(), 'y': level})
 
 	def update_google_spreadsheet(self, level, temp):
 		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
@@ -119,6 +143,7 @@ class Echo(protocol.Protocol):
 
 		# Now update Google Spreadsheet
 		self.update_google_spreadsheet(dist, temp)
+		#self.update_plotly(dist, temp)
 		return "OK!"
 
 	def dataReceived(self, data):

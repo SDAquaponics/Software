@@ -11,6 +11,10 @@ import random
 import plotly.plotly as py # plotly library
 import json
 import datetime
+import xively
+
+XIVELY_API_KEY = "soua9TLw1W7TpvAMwNrIl5AxpEfeCO8T83BpMz3dfJe7FYa4"
+XIVELY_FEED_ID = 584440607
 
 from twisted.internet import protocol, reactor
 
@@ -44,6 +48,16 @@ class Echo(protocol.Protocol):
 			print("Invalid payload type")
 
 		return sensor_dict
+
+	def update_xively(self, ts, level, temp):
+		api = xively.XivelyAPIClient(XIVELY_API_KEY)
+		feed = api.feeds.get(XIVELY_FEED_ID)
+		now=datetime.datetime.utcnow()
+		feed.datastreams = [
+			xively.Datastream(id='water_level', current_value=level, at=now),
+			xively.Datastream(id='temperature', current_value=temp, at=now)
+		]
+		feed.update()
 
 	def update_webpage(self, ts, level, temp):
 		file = open("/home/pi/Software/RasPi/webdata/index.html", 'w')
@@ -146,6 +160,9 @@ class Echo(protocol.Protocol):
 
 		#Update the webpage
 		self.update_webpage(ts, level, temp)
+
+		#Update Xively
+		self.update_xively(ts, level, temp)
 
 		return "OK!"
 

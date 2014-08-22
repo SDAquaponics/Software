@@ -79,7 +79,7 @@ class Echo(protocol.Protocol):
 		print("level = %s" % level)
 		stream.write({'x': datetime.datetime.now(), 'y': level})
 
-	def update_google_spreadsheet(self, level, temp):
+	def update_google_spreadsheet(self, ts, level, temp):
 		gc = gspread.login('henrysaquaponics', 'aquaponicsinc')
 		sp = gc.open("AQPonicsDataLog")
 		wks = sp.worksheet("Data")
@@ -103,10 +103,10 @@ class Echo(protocol.Protocol):
 		# Add jitter so that the graph comes out nicely
 		jitter1 = random.randrange(-400, 400)
 		jitter2 = random.randrange(-400, 400)
-		timestamp = time.strftime("%m-%d-%Y %H:%M:%S")
+
 
 		# Update the running list of readings
-		cell_list[0].value = timestamp
+		cell_list[0].value = ts
 		cell_list[1].value = level
 		cell_list[2].value = temp
 		cell_list[3].value = "%s" % (Decimal(level) + (jitter1/100))
@@ -123,9 +123,6 @@ class Echo(protocol.Protocol):
 		curr_cells[2].value = temp
 		wks.update_cells(curr_cells)
 
-		#Update the webpage
-		self.update_webpage(timestamp, level, temp)
-
 
 	def parseData(self, data):
 		magic1, magic2 = ord(data[0]), ord(data[1])
@@ -141,9 +138,15 @@ class Echo(protocol.Protocol):
 		temp = (all_results['Temperature'])
 		#print("Sensed Distance = %s, Temp = %s" % (dist, temp))
 
+		#Get timestamp
+		ts = time.strftime("%m-%d-%Y %H:%M:%S")
+
 		# Now update Google Spreadsheet
-		self.update_google_spreadsheet(dist, temp)
-		#self.update_plotly(dist, temp)
+		self.update_google_spreadsheet(ts, dist, temp)
+
+		#Update the webpage
+		self.update_webpage(ts, level, temp)
+
 		return "OK!"
 
 	def dataReceived(self, data):

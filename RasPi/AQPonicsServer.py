@@ -132,7 +132,7 @@ class Echo(protocol.Protocol):
 
 		#Update the current value
 		curr_cells = wks.range('A3:C3')
-		curr_cells[0].value = timestamp
+		curr_cells[0].value = ts
 		curr_cells[1].value = level
 		curr_cells[2].value = temp
 		wks.update_cells(curr_cells)
